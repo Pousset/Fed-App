@@ -1,106 +1,79 @@
+import 'package:fedhubs_pro/models/post/sign_up/sign_up_form.dart';
+import 'package:fedhubs_pro/router/routes.dart';
+import 'package:fedhubs_pro/services/auth.dart';
+import 'package:fedhubs_pro/services/enterprise_info/api_create_entreprise_info.dart';
+import 'package:fedhubs_pro/services/enterprise_info/api_delete_entreprise_info.dart';
+import 'package:fedhubs_pro/services/enterprise_info/api_read_enterprise_info.dart';
+import 'package:fedhubs_pro/services/enterprise_info/api_update_enterprise_info.dart';
+import 'package:fedhubs_pro/services/local/company_provider.dart';
+import 'package:fedhubs_pro/services/local/global_state.dart';
+import 'package:fedhubs_pro/services/local/local_database.dart';
+import 'package:fedhubs_pro/services/local/login_state.dart';
+import 'package:fedhubs_pro/widgets/navigations/panel_provider.dart';
+import 'package:fedhubs_pro/widgets/others/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
+// ignore: depend_on_referenced_packages
+import 'package:cookie_jar/cookie_jar.dart';
 
-void main() {
-  runApp(MaterialApp(
-    home: MyApp(),
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await LocalDatabase().initializeHive();
+
+  runApp(MyApp(
+    loginState: LoginState(LocalDatabase()),
   ));
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+class MyApp extends StatelessWidget {
+  final LoginState loginState;
 
-  @override
-  _MyAppState createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  int _selectedIndex = 0;
-  static const List<Widget> _widgetOptions = <Widget>[
-    Text(
-      'Index 0: Accueil',
-      style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
-    ),
-    Text(
-      'Index 1: Favoris',
-      style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
-    ),
-    Text(
-      'Index 2: Paramètres',
-      style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold , color: Color.fromARGB(255, 233, 30, 30)),
-    ),
-  ];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+  Future<PersistCookieJar> getCookieManager() async {
+    final tempDir = await getTemporaryDirectory();
+    return PersistCookieJar(storage: FileStorage(tempDir.path));
   }
 
-  DateTime? _selectedDate;
+  const MyApp({Key? key, required this.loginState}) : super(key: key);
 
-  void _selectFullDate() {
-    showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2021),
-      lastDate: DateTime(2025),
-      builder: (BuildContext context, Widget? child) {
-        return Theme(
-          data: ThemeData.dark(),
-          child: child!,
-        );
-      },
-    ).then((date) {
-      setState(() {
-        _selectedDate = date;
-      });
-    });
-  }
-
+  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('BottomNavigationBar Example'),
-      ),
-      body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Accueil',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
-            label: 'Favoris',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dehaze_rounded),
-            label: 'Paramètres',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.amber[800],
-        onTap: _onItemTapped,
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _selectFullDate,
-        tooltip: 'Sélectionner la date',
-        child: Icon(Icons.calendar_today),
-      ),
-
-      // le texte 'aucune date sélectionnée' s'affiche au milieu de l'écran
-      // si aucune date n'est sélectionnée
-      
-      bottomSheet: _selectedDate != null
-          ? Text(
-              'Date sélectionnée: ${DateFormat('dd/MM/yyyy').format(_selectedDate!)}',
-              style: TextStyle(fontSize: 18),
-            )
-          : null,
+    final cookieJar = getCookieManager();
+    return MultiProvider(
+      providers: [
+        Provider(
+            lazy: false, create: (context) => ApiReadEnterprise(cookieJar)),
+        Provider(
+            lazy: false, create: (context) => ApiCreateEnterprise(cookieJar)),
+        Provider(
+            lazy: false, create: (context) => ApiUpdateEnterprise(cookieJar)),
+        Provider(
+            lazy: false, create: (context) => ApiDeleteEnterprise(cookieJar)),
+        Provider(lazy: false, create: (context) => Auth(loginState, cookieJar)),
+        Provider(lazy: false, create: (context) => GlobalState()),
+        ChangeNotifierProvider(
+            lazy: false, create: (context) => CompanyProvider()),
+        ChangeNotifierProvider(lazy: false, create: (context) => SignUpForm()),
+        ChangeNotifierProvider<PanelProvider>(
+            lazy: false, create: (_) => PanelProvider(Container())),
+        Provider<MyRouter>(
+          lazy: false,
+          create: (BuildContext createContext) => MyRouter(loginState),
+        ),
+      ],
+      child: Builder(builder: (context) {
+        final router = Provider.of<MyRouter>(context, listen: false).router;
+        return MaterialApp.router(
+          routeInformationProvider: router.routeInformationProvider,
+          routeInformationParser: router.routeInformationParser,
+          routerDelegate: router.routerDelegate,
+          debugShowCheckedModeBanner: false,
+          title: 'FEDHUBS',
+          theme: CustomThemeData.data,
+        );
+      }),
     );
   }
 }

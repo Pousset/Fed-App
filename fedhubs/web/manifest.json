@@ -1,6 +1,6 @@
 {
-    "name": "fedhubs",
-    "short_name": "fedhubs",
+    "name": "fedhubs_pro",
+    "short_name": "fedhubs_pro",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

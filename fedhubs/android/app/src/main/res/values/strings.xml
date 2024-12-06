@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Fedhubs</string>
+    <string name="facebook_app_id">623946686006059</string>
+    <string name="fb_login_protocol_scheme">fb623946686006059</string>
+    <string name="facebook_client_token">fbb544934e68b7a177e660843e2201e0</string>
+</resources>

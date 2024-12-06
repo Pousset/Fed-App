@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "63068136164",
+    "project_id": "fedhubs-pro",
+    "storage_bucket": "fedhubs-pro.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:63068136164:android:308a5d001b89c4783d82f1",
+        "android_client_info": {
+          "package_name": "com.example.fedhubs_pro"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "63068136164-g21jb266r41i2150v73roq1cuiqkvia7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.fedhubs_pro",
+            "certificate_hash": "4106b5c31b5d3da11e2f22c48bc10de354913878"
+          }
+        },
+        {
+          "client_id": "63068136164-duo7jp4jj8u68gscr4ev0cpqa0i6h7sg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJECyU74_nqWQsIcWW63wSxTQl0tyVMww"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "63068136164-duo7jp4jj8u68gscr4ev0cpqa0i6h7sg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
